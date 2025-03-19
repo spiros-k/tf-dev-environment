@@ -122,7 +122,25 @@ resource "azurerm_linux_virtual_machine" "lvm" {
     version   = "latest"
   }
 
+  provisioner "local-exec" {
+    command = templatefile("${var.host_os}-ssh-script.tpl", {
+      hostname     = self.public_ip_address,
+      user         = "adminuser"
+      identityfile = "~/.ssh/tfazurekey"
+    })
+    interpreter = ["Powershell", "-Command"]
+  }
+
   tags = {
     environment = "dev"
   }
+}
+
+data "azurerm_public_ip" "ip_data" {
+  name = azurerm_public_ip.ip.name
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+output "public_pi_address" {
+  value = "${azurerm_linux_virtual_machine.lvm.name}: ${data.azurerm_public_ip.ip_data.ip_address}"
 }
