@@ -128,7 +128,7 @@ resource "azurerm_linux_virtual_machine" "lvm" {
       user         = "adminuser"
       identityfile = "~/.ssh/tfazurekey"
     })
-    interpreter = ["Powershell", "-Command"]
+    interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["Bash", "-c"]
   }
 
   tags = {
